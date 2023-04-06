@@ -566,7 +566,9 @@
 
             // 一旦、属性レイヤを削除
             if (map.getLayer('konzatsuji')) map.removeLayer('konzatsuji');
+            if (map.getLayer('konzatsuji-label')) map.removeLayer('konzatsuji-label');
             if (map.getLayer('hikonzatsuji')) map.removeLayer('hikonzatsuji');
+            if (map.getLayer('hikonzatsuji-label')) map.removeLayer('hikonzatsuji-label');
             if (map.getLayer('konzatsudo')) map.removeLayer('konzatsudo');
             if (map.getLayer('12jikankotsuryo-label')) map.removeLayer('12jikankotsuryo-label');
             if (map.getLayer('ogatashakonnyuritsu')) map.removeLayer('ogatashakonnyuritsu');
@@ -621,6 +623,49 @@
                         ]
                     }
                 });
+
+                // 混雑時旅行速度ラベルレイヤ
+                map.addLayer({
+                    'id': BaseMapName + '-label',
+                    'type': 'symbol',
+                    'source': 'mvt-source',
+                    'source-layer': 'output',
+                    'layout': {
+                        'text-field': [
+                            'concat',
+                            '',
+                            [
+                                'to-string',
+                                [
+                                    'min',
+                                    [
+                                        'case',
+                                        ['==', ['get', '混雑時旅行速度（上り）（km/h）'], ''],
+                                        999999,
+                                        ['to-number', ['get', '混雑時旅行速度（上り）（km/h）']]
+                                    ],
+                                    [
+                                        'case',
+                                        ['==', ['get', '混雑時旅行速度（下り）（km/h）'], ''],
+                                        999999,
+                                        ['to-number', ['get', '混雑時旅行速度（下り）（km/h）']]
+                                    ]
+                                ]
+                            ],
+                            ' km/h'
+                        ],
+                        'symbol-placement': 'line-center', // ラベルを線に沿って配置
+                        'text-rotation-alignment': 'map', // ラベルの回転を線に沿って調整
+                        'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+                        'text-size': 11,
+                        'text-offset': [0, -1]
+                    },
+                    'paint': {
+                        'text-color': 'rgba(255, 255, 255, 1)'
+                    }
+                });
+
+
             } else if (BaseMapName === 'hikonzatsuji') {
                 // 昼間非混雑時旅行速度ラインレイヤ
                 map.addLayer({
@@ -665,6 +710,49 @@
                         ]
                     }
                 });
+
+                // 昼間非混雑時旅行速度ラベルレイヤ
+                map.addLayer({
+                    'id': BaseMapName + '-label',
+                    'type': 'symbol',
+                    'source': 'mvt-source',
+                    'source-layer': 'output',
+                    'layout': {
+                        'text-field': [
+                            'concat',
+                            '',
+                            [
+                                'to-string',
+                                [
+                                    'min',
+                                    [
+                                        'case',
+                                        ['==', ['get', '昼間非混雑時旅行速度（上り）（km/h）'], ''],
+                                        999999,
+                                        ['to-number', ['get', '昼間非混雑時旅行速度（上り）（km/h）']]
+                                    ],
+                                    [
+                                        'case',
+                                        ['==', ['get', '昼間非混雑時旅行速度（下り）（km/h）'], ''],
+                                        999999,
+                                        ['to-number', ['get', '昼間非混雑時旅行速度（下り）（km/h）']]
+                                    ]
+                                ]
+                            ],
+                            ' km/h'
+                        ],
+                        'symbol-placement': 'line-center', // ラベルを線に沿って配置
+                        'text-rotation-alignment': 'map', // ラベルの回転を線に沿って調整
+                        'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+                        'text-size': 11,
+                        'text-offset': [0, -1]
+                    },
+                    'paint': {
+                        'text-color': 'rgba(255, 255, 255, 1)'
+                    }
+                });
+
+
             } else if (BaseMapName === 'konzatsudo') {
                 // 混雑度ラインレイヤ
                 map.addLayer({
