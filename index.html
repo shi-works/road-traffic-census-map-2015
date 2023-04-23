@@ -1,12 +1,12 @@
 <html>
 
 <head>
-    <title>道路交通センサスマップ2015（Mapbox Vector Tile）</title>
+    <title>道路交通センサスマップ2015（PMTiles）</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js"></script>
     <link href="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css" rel="stylesheet" />
-    <script src="https://unpkg.com/deck.gl@latest/dist.min.js"></script>
+    <script src="https://unpkg.com/pmtiles@2.7.0/dist/index.js"></script>
     <style>
         body {
             margin: 0;
@@ -136,6 +136,7 @@
     <div id="zokusei">
         <label><b>表示する属性の種類</b></label><br>
         <select id="basemaps" onchange="SelectMap()">
+            <option value="24jikankotsuryo">２４時間交通量（全車上下計）（台）</option>
             <option value="konzatsudo">混雑度</option>
             <option value="ogatashakonnyuritsu">大型車混入率</option>
             <option value="konzatsuji">混雑時旅行速度</option>
@@ -146,6 +147,18 @@
         <div class="map-overlay-inner">
             <label>空中写真 不透明度: <span id="slider-opacity-value">30%</span></label>
             <input id="slider-opacity" type="range" min="0" max="100" step="0" value="30">
+        </div>
+    </div>
+    <div id='legend-24jikankotsuryo' style="display:block;" class='legend'>
+        <p><b>２４時間交通量(全車上下計)</b></p>
+        <div class="square" style='background-color: rgb(0, 255, 255); display: inline-block;'>
+        </div><span style="display: inline-block; margin-left: 5px;">高速道路</span><br>
+        <div class="square" style='background-color: rgb(0, 127, 255); display: inline-block;'>
+        </div><span style="display: inline-block; margin-left: 5px;">高速道路以外</span><br>
+        <p>※図中の台数は
+            24時間交通量<br>(全車上下計)</p>
+        <div><span
+                style='background-color: rgb(255, 0, 255)'></span>主要渋滞箇所<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(R3.9時点)
         </div>
     </div>
     <div id='legend-konzatsuji' style="display:none;" class='legend'>
@@ -192,7 +205,7 @@
                 style='background-color: rgb(255, 0, 255)'></span>主要渋滞箇所<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(R3.9時点)
         </div>
     </div>
-    <div id='legend-konzatsudo' style="display:block;" class='legend'>
+    <div id='legend-konzatsudo' style="display:none;" class='legend'>
         <p><b>混雑度(昼間12時間)</b></p>
         <div class="square" style='background-color: rgb(0, 255, 0); display: inline-block;'>
         </div><span style="display: inline-block; margin-left: 5px;">1.0未満</span><br>
@@ -226,16 +239,25 @@
                 style='background-color: rgb(255, 0, 255)'></span>主要渋滞箇所<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(R3.9時点)
         </div>
     </div>
-    <!-- Load the `maplibre-gl-geocoder` plugin. -->
-    <!--<script src="https://unpkg.com/@maplibre/maplibre-gl-geocoder@1.2.0/dist/maplibre-gl-geocoder.min.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/@maplibre/maplibre-gl-geocoder@1.2.0/dist/maplibre-gl-geocoder.css"
-        type="text/css" />-->
     <script type="text/javascript">
+        // add the PMTiles plugin to the maplibregl global.
+        let protocol = new pmtiles.Protocol();
+        maplibregl.addProtocol("pmtiles", protocol.tile);
+
+        // let PMTILES_URL = "https://xs489works.xsrv.jp/MapLibreGLJS/13-01/data/traffic_census_2015_convert.pmtiles";
+        let PMTILES_URL = "https://pmtiles-data.s3.ap-northeast-1.amazonaws.com/traffic-census/traffic_census_2015_convert.pmtiles";
+
+        const p = new pmtiles.PMTiles(PMTILES_URL)
+
+        // this is so we share one instance across the JS code and the map renderer
+        protocol.add(p);
+
         const map = new maplibregl.Map({
             container: 'map',
             // style: './style/dark.json',
             // style: 'https://tile2.openstreetmap.jp/styles/osm-bright/style.json',
             style: 'https://api.maptiler.com/maps/jp-mierune-dark/style.json?key=3vP7xaDm3gASNdwulEW1',
+            // style: './std.json',
             hash: true,
             zoom: 13,
             maxZoom: 23,
@@ -248,8 +270,7 @@
 
         // Attributionを折りたたみ表示
         map.addControl(new maplibregl.AttributionControl({
-            compact: true,
-            customAttribution: '<a href="https://www.mlit.go.jp/road/ir/ir-data/census_visualization2/index.html">平成27年度全国道路・街路交通情勢調査　一般交通量調査結果（可視化ツール）（国土交通省）</a> | <a href="https://www.mlit-data.jp/platform/">国土交通データプラットフォーム（国土交通省）</a>'
+            compact: true
         }));
 
         // ズーム・回転
@@ -273,16 +294,6 @@
             maxWidth: 200,
             unit: 'metric'
         }));
-
-        const { MapboxLayer, MVTLayer } = deck
-
-        /*
-        // Attributionを折りたたみ表示
-        map.addControl(new maplibregl.AttributionControl({
-            compact: true,
-            customAttribution: '<a href="https://www.mlit-data.jp/platform/index.html">国土交通データプラットフォーム</a>'
-        }));
-        */
 
         const sliderOpactiy = document.getElementById('slider-opacity');
         const sliderOpactiyValue = document.getElementById('slider-opacity-value');
@@ -323,92 +334,38 @@
                 sliderOpactiyValue.textContent = e.target.value + '%';
             });
 
-            /*
-            map.addLayer(new MapboxLayer({
-                id: 'traffic_census',
-                type: MVTLayer,
-                data: `https://data.mlit-data.jp/traffic_census/{z}/{x}/{y}.pbf`,
-                minZoom: 0,
-                maxZoom: 23,
-                getLineWidth: 3,
-                lineWidthMinPixels: 3,
-                // 混雑時旅行速度で色分け
-                getLineColor: d => {
-                    if (d.properties["混雑時旅行速度（上り）（km/h）"] == "") {
-                        Vup = 999999
-                    } else {
-                        Vup = Number(d.properties["混雑時旅行速度（上り）（km/h）"].replace("（補完値）", ""))
-                    }
-                    if (d.properties["混雑時旅行速度（下り）（km/h）"] == "") {
-                        Vup = 999999
-                    } else {
-                        Vdown = Number(d.properties["混雑時旅行速度（下り）（km/h）"].replace("（補完値）", ""))
-                    }
-                    Vmin = Math.min(Vup, Vdown)
-                    //console.log(Vmin)
-                    if (Vmin < 10) {
-                        return [255, 0, 0];
-                    } else if (Vmin < 20) {
-                        return [255, 127, 0];
-                    } else if (Vmin < 30) {
-                        return [255, 210, 0];
-                    } else if (Vmin < 40) {
-                        return [0, 255, 0];
-                    } else if (Vmin < 50) {
-                        return [0, 191, 255];
-                    } else if (Vmin >= 50) {
-                        return [0, 63, 255];
-                    }
-                },
-                pickable: true,
-                autoHighlight: true,
-                highlightColor: [255, 0, 0],
-                wireframe: true,
-                extruded: true
-            }))
-            */
-
             // 主要渋滞箇所（geojson）
             map.addSource('syuyouzyutai', {
                 type: 'geojson',
-                data: './syuyouzyutai_v2.geojson'
+                data: './syuyouzyutai_v2.geojson',
+                attribution: '<a href="https://www.mlit.go.jp/road/ir/ir-data/census_visualization2/index.html">平成27年度全国道路・街路交通情勢調査　一般交通量調査結果（可視化ツール）（国土交通省）</a>'
             });
 
             /*
-            //色分け用色の準備
-            let colors = [
-                'rgba(255, 0, 0, 1)',
-                'rgba(255, 127, 0, 1)',
-                'rgba(255, 210, 0, 1)',
-                'rgba(0, 255, 0, 1)',
-                'rgba(0, 191, 255, 1)',
-                'rgba(0, 63, 255, 1)'
-            ]
-
-            //色分け用のフィルタ準備
-            let f1 = ["all", [">=", ['min', ['to-number', ['match', ['get', '混雑時旅行速度（上り）（km/h）'], '（補完値）', 'g']], ['to-number', ['match', ['get', '混雑時旅行速度（下り）（km/h）'], '（補完値）', 'g']]], 0], ["<", ['min', ['to-number', ['match', ['get', '混雑時旅行速度（上り）（km/h）'], '（補完値）', 'g']], ['to-number', ['match', ['get', '混雑時旅行速度（下り）（km/h）'], '（補完値）', 'g']]], 10]];
-            let f2 = ["all", [">=", ['min', ['to-number', ['match', ['get', '混雑時旅行速度（上り）（km/h）'], '（補完値）', 'g']], ['to-number', ['match', ['get', '混雑時旅行速度（下り）（km/h）'], '（補完値）', 'g']]], 10], ["<", ['min', ['to-number', ['match', ['get', '混雑時旅行速度（上り）（km/h）'], '（補完値）', 'g']], ['to-number', ['match', ['get', '混雑時旅行速度（下り）（km/h）'], '（補完値）', 'g']]], 20]];
-            let f3 = ["all", [">=", ['min', ['to-number', ['match', ['get', '混雑時旅行速度（上り）（km/h）'], '（補完値）', 'g']], ['to-number', ['match', ['get', '混雑時旅行速度（下り）（km/h）'], '（補完値）', 'g']]], 20], ["<", ['min', ['to-number', ['match', ['get', '混雑時旅行速度（上り）（km/h）'], '（補完値）', 'g']], ['to-number', ['match', ['get', '混雑時旅行速度（下り）（km/h）'], '（補完値）', 'g']]], 30]];
-            let f4 = ["all", [">=", ['min', ['to-number', ['match', ['get', '混雑時旅行速度（上り）（km/h）'], '（補完値）', 'g']], ['to-number', ['match', ['get', '混雑時旅行速度（下り）（km/h）'], '（補完値）', 'g']]], 30], ["<", ['min', ['to-number', ['match', ['get', '混雑時旅行速度（上り）（km/h）'], '（補完値）', 'g']], ['to-number', ['match', ['get', '混雑時旅行速度（下り）（km/h）'], '（補完値）', 'g']]], 40]];
-            let f5 = ["all", [">=", ['min', ['to-number', ['match', ['get', '混雑時旅行速度（上り）（km/h）'], '（補完値）', 'g']], ['to-number', ['match', ['get', '混雑時旅行速度（下り）（km/h）'], '（補完値）', 'g']]], 40], ["<", ['min', ['to-number', ['match', ['get', '混雑時旅行速度（上り）（km/h）'], '（補完値）', 'g']], ['to-number', ['match', ['get', '混雑時旅行速度（下り）（km/h）'], '（補完値）', 'g']]], 50]];
-            let f6 = ["all", [">=", ['min', ['to-number', ['match', ['get', '混雑時旅行速度（上り）（km/h）'], '（補完値）', 'g']], ['to-number', ['match', ['get', '混雑時旅行速度（下り）（km/h）'], '（補完値）', 'g']]], 50], ["<", ['min', ['to-number', ['match', ['get', '混雑時旅行速度（上り）（km/h）'], '（補完値）', 'g']], ['to-number', ['match', ['get', '混雑時旅行速度（下り）（km/h）'], '（補完値）', 'g']]], 180]];
-            */
-
-            // H27道路交通センサス（ベクトルタイル）
+            // H27道路交通センサスベクトルタイル（MVT）
             map.addSource('mvt-source', {
                 'type': 'vector',
                 'tiles': ['https://data.mlit-data.jp/traffic_census/{z}/{x}/{y}.pbf'],
                 'minzoom': 7,
                 'maxzoom': 14
             });
+            */
 
+            // H27道路交通センサスベクトルタイル（PMTiles）
+            map.addSource("pmtiles", {
+                type: "vector",
+                url: "pmtiles://" + PMTILES_URL,
+                attribution: '<a href="https://www.mlit-data.jp/platform/">国土交通データプラットフォーム 全国道路・街路交通情勢調査 一般交通量調査（道路交通センサス）（国土交通省）</a>'
+            });
 
             // 属性表示用ラインレイヤ
             map.addLayer({
                 'id': 'zokusei-layer',
                 'type': 'line',
-                'source': 'mvt-source',
-                'source-layer': 'output',
+                //'source': 'mvt-source',
+                //'source-layer': 'output',
+                'source': 'pmtiles',
+                'source-layer': 'traffic_census_2015_convertfgb',
                 'layout': {
                     'line-join': 'round',
                     'line-cap': 'round'
@@ -419,106 +376,338 @@
                 }
             });
 
-            /*
-            // 混雑時旅行速度ラインレイヤ
+            // ２４時間交通量（全車上下計）（台）ラインレイヤ
+            // 一般道
             map.addLayer({
-                'id': 'konzatsuji',
+                'id': '24jikankotsuryo-ippando-line-1',
                 'type': 'line',
-                'source': 'mvt-source',
-                'source-layer': 'output',
+                //'source': 'mvt-source',
+                //'source-layer': 'output',
+                'source': 'pmtiles',
+                'source-layer': 'traffic_census_2015_convertfgb',
                 'layout': {
                     'line-join': 'round',
                     'line-cap': 'round'
                 },
                 'paint': {
-                    'line-width': 4,
-                    'line-color': [
+                    // 'line-width': 4,
+                    'line-width': [
                         'step',
-                        [
-                            'min',
-                            [
-                                'case',
-                                ['==', ['get', '混雑時旅行速度（上り）（km/h）'], ''],
-                                999999,
-                                ['to-number', ['get', '混雑時旅行速度（上り）（km/h）']]
-                            ],
-                            [
-                                'case',
-                                ['==', ['get', '混雑時旅行速度（下り）（km/h）'], ''],
-                                999999,
-                                ['to-number', ['get', '混雑時旅行速度（下り）（km/h）']]
-                            ]
-                        ],
-                        'rgb(255, 0, 0)',
-                        10,
-                        'rgb(255, 127, 0)',
-                        20,
-                        'rgb(255, 210, 0)',
-                        30,
-                        'rgb(0, 255, 0)',
-                        40,
-                        'rgb(0, 191, 255)',
-                        50,
-                        'rgb(0, 63, 255)'
+                        ['to-number', ['get', '２４時間交通量（全車上下計）（台）']],
+                        1, // 0 以上 5000 未満
+                        5000,
+                        2, // 5000 以上 10000 未満
+                        10000,
+                        5, // 10000 以上 20000 未満
+                        20000,
+                        10, // 20000 以上 40000 未満
+                        40000,
+                        15, // 40000 以上 80000 未満
+                        80000,
+                        20  // 80000 以上
+                    ],
+                    'line-color': 'rgba(0, 127, 255, 1)',
+                    'line-blur': 3,
+                    'line-opacity': 0.6,
+                },
+                'filter': ['all',
+                    ['!=', ['get', '２４時間交通量（全車上下計）（台）'], ''],
+                    ['all',
+                        ['!=', ['get', '道路種別'], '1：高速自動車国道'],
+                        ['!=', ['get', '道路種別'], '2：都市高速道路']
                     ]
-                }
+                ]
             });
-            */
 
-            // 混雑度ラインレイヤ
+            // ２４時間交通量（全車上下計）（台）ラインレイヤ
+            // 一般道
             map.addLayer({
-                'id': 'konzatsudo',
+                'id': '24jikankotsuryo-ippando-line-2',
                 'type': 'line',
-                'source': 'mvt-source',
-                'source-layer': 'output',
+                //'source': 'mvt-source',
+                //'source-layer': 'output',
+                'source': 'pmtiles',
+                'source-layer': 'traffic_census_2015_convertfgb',
                 'layout': {
                     'line-join': 'round',
                     'line-cap': 'round'
                 },
                 'paint': {
-                    'line-width': 4,
-                    'line-color': [
+                    // 'line-width': 4,
+                    'line-width': [
                         'step',
-                        ['to-number', ['get', '混雑度']],
-                        'rgb(0, 255, 0)', // 0 以上 1.0 未満
-                        1.0,
-                        'rgb(255, 255, 0)', // 1.0 以上 1.25 未満
-                        1.25,
-                        'rgb(255, 127, 0)', // 1.25 以上 1.75 未満
-                        1.75,
-                        'rgb(255, 0, 0)', // 1.75 以上
+                        ['to-number', ['get', '２４時間交通量（全車上下計）（台）']],
+                        0.5, // 0 以上 5000 未満
+                        5000,
+                        1, // 5000 以上 10000 未満
+                        10000,
+                        2.5, // 10000 以上 20000 未満
+                        20000,
+                        5, // 20000 以上 40000 未満
+                        40000,
+                        7.5, // 40000 以上 80000 未満
+                        80000,
+                        10  // 80000 以上
+                    ],
+                    'line-color': 'rgba(0, 127, 255, 1)',
+                    'line-blur': 2,
+                    'line-opacity': 0.6,
+                },
+                'filter': ['all',
+                    ['!=', ['get', '２４時間交通量（全車上下計）（台）'], ''],
+                    ['all',
+                        ['!=', ['get', '道路種別'], '1：高速自動車国道'],
+                        ['!=', ['get', '道路種別'], '2：都市高速道路']
                     ]
-                }
+                ]
             });
 
-            // 昼間１２時間交通量（全車上下計）ラベルレイヤ
+            // ２４時間交通量（全車上下計）（台）ラインレイヤ
+            // 一般道
             map.addLayer({
-                'id': '12jikankotsuryo-label',
+                'id': '24jikankotsuryo-ippando-line-3',
+                'type': 'line',
+                //'source': 'mvt-source',
+                //'source-layer': 'output',
+                'source': 'pmtiles',
+                'source-layer': 'traffic_census_2015_convertfgb',
+                'layout': {
+                    'line-join': 'round',
+                    'line-cap': 'round'
+                },
+                'paint': {
+                    // 'line-width': 4,
+                    'line-width': [
+                        'step',
+                        ['to-number', ['get', '２４時間交通量（全車上下計）（台）']],
+                        0.25, // 0 以上 5000 未満
+                        5000,
+                        0.5, // 5000 以上 10000 未満
+                        10000,
+                        1, // 10000 以上 20000 未満
+                        20000,
+                        1, // 20000 以上 40000 未満
+                        40000,
+                        1, // 40000 以上 80000 未満
+                        80000,
+                        1  // 80000 以上
+                    ],
+                    'line-color': 'rgba(255, 255, 255, 1)',
+                    'line-blur': 0,
+                    'line-opacity': 1,
+                },
+                'filter': ['all',
+                    ['!=', ['get', '２４時間交通量（全車上下計）（台）'], ''],
+                    ['all',
+                        ['!=', ['get', '道路種別'], '1：高速自動車国道'],
+                        ['!=', ['get', '道路種別'], '2：都市高速道路']
+                    ]
+                ]
+            });
+
+            // ２４時間交通量（全車上下計）（台）ラベルレイヤ
+            // 一般道
+            map.addLayer({
+                'id': '24jikankotsuryo-ippando-label',
                 'type': 'symbol',
-                'source': 'mvt-source',
-                'source-layer': 'output',
+                //'source': 'mvt-source',
+                //'source-layer': 'output',
+                'source': 'pmtiles',
+                'source-layer': 'traffic_census_2015_convertfgb',
                 minzoom: 0,
                 maxzoom: 23,
                 layout: {
                     'symbol-placement': 'line-center', // ラベルを線に沿って配置
                     'text-rotation-alignment': 'map', // ラベルの回転を線に沿って調整
-                    'text-field': ['concat', ['get', '昼間１２時間交通量（全車上下計）（台）'], '台'],
+                    'text-field': ['concat', ['get', '２４時間交通量（全車上下計）（台）'], '台'],
                     'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
                     'text-size': 11,
                     'text-offset': [0, -1]
                 },
                 paint: {
-                    'text-color': 'rgba(255, 255, 255, 1)'
-                }
+                    'text-color': 'rgba(255, 255, 255, 1)',
+                    'text-halo-blur': 0.8,
+                    'text-halo-color': 'rgba(0, 0, 0, 1)',
+                    'text-halo-width': 1
+                },
+                'filter': ['all',
+                    ['!=', ['get', '２４時間交通量（全車上下計）（台）'], ''],
+                    ['any',
+                        ['!=', ['get', '道路種別'], '1：高速自動車国道'],
+                        ['!=', ['get', '道路種別'], '2：都市高速道路']
+                    ]
+                ]
             });
 
+            // ２４時間交通量（全車上下計）（台）ラインレイヤ
+            // 高速道路
+            map.addLayer({
+                'id': '24jikankotsuryo-kousoku-line-1',
+                'type': 'line',
+                //'source': 'mvt-source',
+                //'source-layer': 'output',
+                'source': 'pmtiles',
+                'source-layer': 'traffic_census_2015_convertfgb',
+                'layout': {
+                    'line-join': 'round',
+                    'line-cap': 'round'
+                },
+                'paint': {
+                    // 'line-width': 4,
+                    'line-width': [
+                        'step',
+                        ['to-number', ['get', '２４時間交通量（全車上下計）（台）']],
+                        1, // 0 以上 5000 未満
+                        5000,
+                        2, // 5000 以上 10000 未満
+                        10000,
+                        5, // 10000 以上 20000 未満
+                        20000,
+                        10, // 20000 以上 40000 未満
+                        40000,
+                        15, // 40000 以上 80000 未満
+                        80000,
+                        20  // 80000 以上
+                    ],
+                    'line-color': 'rgba(0, 255, 255, 1)',
+                    'line-blur': 3,
+                    'line-opacity': 0.6,
+                },
+                'filter': ['all',
+                    ['!=', ['get', '２４時間交通量（全車上下計）（台）'], ''],
+                    ['any',
+                        ['==', ['get', '道路種別'], '1：高速自動車国道'],
+                        ['==', ['get', '道路種別'], '2：都市高速道路']
+                    ]
+                ]
+            });
+
+            // ２４時間交通量（全車上下計）（台）ラインレイヤ
+            // 高速道路
+            map.addLayer({
+                'id': '24jikankotsuryo-kousoku-line-2',
+                'type': 'line',
+                //'source': 'mvt-source',
+                //'source-layer': 'output',
+                'source': 'pmtiles',
+                'source-layer': 'traffic_census_2015_convertfgb',
+                'layout': {
+                    'line-join': 'round',
+                    'line-cap': 'round'
+                },
+                'paint': {
+                    // 'line-width': 4,
+                    'line-width': [
+                        'step',
+                        ['to-number', ['get', '２４時間交通量（全車上下計）（台）']],
+                        0.5, // 0 以上 5000 未満
+                        5000,
+                        1, // 5000 以上 10000 未満
+                        10000,
+                        2.5, // 10000 以上 20000 未満
+                        20000,
+                        5, // 20000 以上 40000 未満
+                        40000,
+                        7.5, // 40000 以上 80000 未満
+                        80000,
+                        10  // 80000 以上
+                    ],
+                    'line-color': 'rgba(0, 255, 255, 1)',
+                    'line-blur': 2,
+                    'line-opacity': 0.6,
+                },
+                'filter': ['all',
+                    ['!=', ['get', '２４時間交通量（全車上下計）（台）'], ''],
+                    ['any',
+                        ['==', ['get', '道路種別'], '1：高速自動車国道'],
+                        ['==', ['get', '道路種別'], '2：都市高速道路']
+                    ]
+                ]
+            });
+
+            // ２４時間交通量（全車上下計）（台）ラインレイヤ
+            // 高速道路
+            map.addLayer({
+                'id': '24jikankotsuryo-kousoku-line-3',
+                'type': 'line',
+                //'source': 'mvt-source',
+                //'source-layer': 'output',
+                'source': 'pmtiles',
+                'source-layer': 'traffic_census_2015_convertfgb',
+                'layout': {
+                    'line-join': 'round',
+                    'line-cap': 'round'
+                },
+                'paint': {
+                    // 'line-width': 4,
+                    'line-width': [
+                        'step',
+                        ['to-number', ['get', '２４時間交通量（全車上下計）（台）']],
+                        0.25, // 0 以上 5000 未満
+                        5000,
+                        0.5, // 5000 以上 10000 未満
+                        10000,
+                        1, // 10000 以上 20000 未満
+                        20000,
+                        1, // 20000 以上 40000 未満
+                        40000,
+                        1, // 40000 以上 80000 未満
+                        80000,
+                        1  // 80000 以上
+                    ],
+                    'line-color': 'rgba(255, 255, 255, 1)',
+                    'line-blur': 0,
+                    'line-opacity': 1,
+                },
+                'filter': ['all',
+                    ['!=', ['get', '２４時間交通量（全車上下計）（台）'], ''],
+                    ['any',
+                        ['==', ['get', '道路種別'], '1：高速自動車国道'],
+                        ['==', ['get', '道路種別'], '2：都市高速道路']
+                    ]
+                ]
+            });
+
+            // ２４時間交通量（全車上下計）（台）ラベルレイヤ
+            // 高速道路
+            map.addLayer({
+                'id': '24jikankotsuryo-kousoku-label',
+                'type': 'symbol',
+                //'source': 'mvt-source',
+                //'source-layer': 'output',
+                'source': 'pmtiles',
+                'source-layer': 'traffic_census_2015_convertfgb',
+                minzoom: 0,
+                maxzoom: 23,
+                layout: {
+                    'symbol-placement': 'line-center', // ラベルを線に沿って配置
+                    'text-rotation-alignment': 'map', // ラベルの回転を線に沿って調整
+                    'text-field': ['concat', ['get', '２４時間交通量（全車上下計）（台）'], '台'],
+                    'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+                    'text-size': 11,
+                    'text-offset': [0, -1]
+                },
+                paint: {
+                    'text-color': 'rgba(255, 255, 255, 1)',
+                    'text-halo-blur': 0.8,
+                    'text-halo-color': 'rgba(0, 0, 0, 1)',
+                    'text-halo-width': 1
+                },
+                'filter': ['all',
+                    ['!=', ['get', '２４時間交通量（全車上下計）（台）'], ''],
+                    ['any',
+                        ['==', ['get', '道路種別'], '1：高速自動車国道'],
+                        ['==', ['get', '道路種別'], '2：都市高速道路']
+                    ]
+                ]
+            });
 
             // 主要渋滞箇所ポイントレイヤ
             map.addLayer({
                 id: 'syuyouzyutai-point-1',
                 type: 'circle',
                 source: 'syuyouzyutai',
-                minzoom: 12,
+                minzoom: 14,
                 maxzoom: 23,
                 paint: {
                     'circle-color': 'rgba(255, 255, 255, 1)',
@@ -532,7 +721,7 @@
                 id: 'syuyouzyutai-point-2',
                 type: 'circle',
                 source: 'syuyouzyutai',
-                minzoom: 12,
+                minzoom: 14,
                 maxzoom: 23,
                 paint: {
                     'circle-color': 'rgba(255, 0, 255, 1)',
@@ -545,7 +734,7 @@
                 id: 'syuyouzyutai-label',
                 type: 'symbol',
                 source: 'syuyouzyutai',
-                minzoom: 12,
+                minzoom: 14,
                 maxzoom: 23,
                 layout: {
                     'text-field': ['get', 'syk'],
@@ -561,14 +750,16 @@
                 }
             });
 
+            map.showTileBoundaries = false;
+
         })
 
-        map.showTileBoundaries = false;
+        //map.showTileBoundaries = false;
 
         function SelectMap() {
             var BaseMapName = document.getElementById('basemaps').value;
 
-            // 一旦、属性レイヤを削除
+            // 一旦、各レイヤを削除
             if (map.getLayer('konzatsuji')) map.removeLayer('konzatsuji');
             if (map.getLayer('konzatsuji-label')) map.removeLayer('konzatsuji-label');
             if (map.getLayer('hikonzatsuji')) map.removeLayer('hikonzatsuji');
@@ -577,6 +768,14 @@
             if (map.getLayer('12jikankotsuryo-label')) map.removeLayer('12jikankotsuryo-label');
             if (map.getLayer('ogatashakonnyuritsu')) map.removeLayer('ogatashakonnyuritsu');
             if (map.getLayer('12jikankotsuryo-ogatasha-label')) map.removeLayer('12jikankotsuryo-ogatasha-label');
+            if (map.getLayer('24jikankotsuryo-kousoku-line-1')) map.removeLayer('24jikankotsuryo-kousoku-line-1');
+            if (map.getLayer('24jikankotsuryo-kousoku-line-2')) map.removeLayer('24jikankotsuryo-kousoku-line-2');
+            if (map.getLayer('24jikankotsuryo-kousoku-line-3')) map.removeLayer('24jikankotsuryo-kousoku-line-3');
+            if (map.getLayer('24jikankotsuryo-kousoku-label')) map.removeLayer('24jikankotsuryo-kousoku-label');
+            if (map.getLayer('24jikankotsuryo-ippando-line-1')) map.removeLayer('24jikankotsuryo-ippando-line-1');
+            if (map.getLayer('24jikankotsuryo-ippando-line-2')) map.removeLayer('24jikankotsuryo-ippando-line-2');
+            if (map.getLayer('24jikankotsuryo-ippando-line-3')) map.removeLayer('24jikankotsuryo-ippando-line-3');
+            if (map.getLayer('24jikankotsuryo-ippando-label')) map.removeLayer('24jikankotsuryo-ippando-label');
 
             // 一旦、主要渋滞箇所レイヤ削除
             map.removeLayer("syuyouzyutai-point-1");
@@ -586,10 +785,12 @@
             if (BaseMapName === 'konzatsuji') {
                 // 混雑時旅行速度ラインレイヤ
                 map.addLayer({
-                    'id': BaseMapName,
+                    'id': 'konzatsuji',
                     'type': 'line',
-                    'source': 'mvt-source',
-                    'source-layer': 'output',
+                    //'source': 'mvt-source',
+                    //'source-layer': 'output',
+                    'source': 'pmtiles',
+                    'source-layer': 'traffic_census_2015_convertfgb',
                     'layout': {
                         'line-join': 'round',
                         'line-cap': 'round'
@@ -630,10 +831,12 @@
 
                 // 混雑時旅行速度ラベルレイヤ
                 map.addLayer({
-                    'id': BaseMapName + '-label',
+                    'id': 'konzatsuji-label',
                     'type': 'symbol',
-                    'source': 'mvt-source',
-                    'source-layer': 'output',
+                    //'source': 'mvt-source',
+                    //'source-layer': 'output',
+                    'source': 'pmtiles',
+                    'source-layer': 'traffic_census_2015_convertfgb',
                     'layout': {
                         'text-field': [
                             'concat',
@@ -665,7 +868,10 @@
                         'text-offset': [0, -1]
                     },
                     'paint': {
-                        'text-color': 'rgba(255, 255, 255, 1)'
+                        'text-color': 'rgba(255, 255, 255, 1)',
+                        'text-halo-blur': 0.8,
+                        'text-halo-color': 'rgba(0, 0, 0, 1)',
+                        'text-halo-width': 1
                     }
                 });
 
@@ -673,10 +879,12 @@
             } else if (BaseMapName === 'hikonzatsuji') {
                 // 昼間非混雑時旅行速度ラインレイヤ
                 map.addLayer({
-                    'id': BaseMapName,
+                    'id': 'hikonzatsuji',
                     'type': 'line',
-                    'source': 'mvt-source',
-                    'source-layer': 'output',
+                    //'source': 'mvt-source',
+                    //'source-layer': 'output',
+                    'source': 'pmtiles',
+                    'source-layer': 'traffic_census_2015_convertfgb',
                     'layout': {
                         'line-join': 'round',
                         'line-cap': 'round'
@@ -717,10 +925,12 @@
 
                 // 昼間非混雑時旅行速度ラベルレイヤ
                 map.addLayer({
-                    'id': BaseMapName + '-label',
+                    'id': 'hikonzatsuji-label',
                     'type': 'symbol',
-                    'source': 'mvt-source',
-                    'source-layer': 'output',
+                    //'source': 'mvt-source',
+                    //'source-layer': 'output',
+                    'source': 'pmtiles',
+                    'source-layer': 'traffic_census_2015_convertfgb',
                     'layout': {
                         'text-field': [
                             'concat',
@@ -752,7 +962,10 @@
                         'text-offset': [0, -1]
                     },
                     'paint': {
-                        'text-color': 'rgba(255, 255, 255, 1)'
+                        'text-color': 'rgba(255, 255, 255, 1)',
+                        'text-halo-blur': 0.8,
+                        'text-halo-color': 'rgba(0, 0, 0, 1)',
+                        'text-halo-width': 1
                     }
                 });
 
@@ -760,10 +973,12 @@
             } else if (BaseMapName === 'konzatsudo') {
                 // 混雑度ラインレイヤ
                 map.addLayer({
-                    'id': BaseMapName,
+                    'id': 'konzatsudo',
                     'type': 'line',
-                    'source': 'mvt-source',
-                    'source-layer': 'output',
+                    //'source': 'mvt-source',
+                    //'source-layer': 'output',
+                    'source': 'pmtiles',
+                    'source-layer': 'traffic_census_2015_convertfgb',
                     'layout': {
                         'line-join': 'round',
                         'line-cap': 'round'
@@ -788,8 +1003,10 @@
                 map.addLayer({
                     'id': '12jikankotsuryo-label',
                     'type': 'symbol',
-                    'source': 'mvt-source',
-                    'source-layer': 'output',
+                    //'source': 'mvt-source',
+                    //'source-layer': 'output',
+                    'source': 'pmtiles',
+                    'source-layer': 'traffic_census_2015_convertfgb',
                     minzoom: 0,
                     maxzoom: 23,
                     layout: {
@@ -801,16 +1018,22 @@
                         'text-offset': [0, -1]
                     },
                     paint: {
-                        'text-color': 'rgba(255, 255, 255, 1)'
-                    }
+                        'text-color': 'rgba(255, 255, 255, 1)',
+                        'text-halo-blur': 0.8,
+                        'text-halo-color': 'rgba(0, 0, 0, 1)',
+                        'text-halo-width': 1
+                    },
+                    'filter': ['!=', ['get', '昼間１２時間交通量（全車上下計）（台）'], '']
                 });
-            } else if (BaseMapName === 'ogatashakonnyuritsu') { //ogatashakonnyuritsu">大型車混入率
+            } else if (BaseMapName === 'ogatashakonnyuritsu') {
                 // 大型車混入率ラインレイヤ
                 map.addLayer({
-                    'id': BaseMapName,
+                    'id': 'ogatashakonnyuritsu',
                     'type': 'line',
-                    'source': 'mvt-source',
-                    'source-layer': 'output',
+                    //'source': 'mvt-source',
+                    //'source-layer': 'output',
+                    'source': 'pmtiles',
+                    'source-layer': 'traffic_census_2015_convertfgb',
                     'layout': {
                         'line-join': 'round',
                         'line-cap': 'round'
@@ -835,8 +1058,10 @@
                 map.addLayer({
                     'id': '12jikankotsuryo-ogatasha-label',
                     'type': 'symbol',
-                    'source': 'mvt-source',
-                    'source-layer': 'output',
+                    //'source': 'mvt-source',
+                    //'source-layer': 'output',
+                    'source': 'pmtiles',
+                    'source-layer': 'traffic_census_2015_convertfgb',
                     minzoom: 0,
                     maxzoom: 23,
                     layout: {
@@ -848,8 +1073,338 @@
                         'text-offset': [0, -1]
                     },
                     paint: {
-                        'text-color': 'rgba(255, 255, 255, 1)'
-                    }
+                        'text-color': 'rgba(255, 255, 255, 1)',
+                        'text-halo-blur': 0.8,
+                        'text-halo-color': 'rgba(0, 0, 0, 1)',
+                        'text-halo-width': 1
+                    },
+                    'filter': ['!=', ['get', '昼間１２時間交通量（大型車上下計）（台）'], '']
+                });
+            } else if (BaseMapName === '24jikankotsuryo') {
+                // ２４時間交通量（全車上下計）（台）ラインレイヤ
+                // 一般道
+                map.addLayer({
+                    'id': '24jikankotsuryo-ippando-line-1',
+                    'type': 'line',
+                    //'source': 'mvt-source',
+                    //'source-layer': 'output',
+                    'source': 'pmtiles',
+                    'source-layer': 'traffic_census_2015_convertfgb',
+                    'layout': {
+                        'line-join': 'round',
+                        'line-cap': 'round'
+                    },
+                    'paint': {
+                        // 'line-width': 4,
+                        'line-width': [
+                            'step',
+                            ['to-number', ['get', '２４時間交通量（全車上下計）（台）']],
+                            1, // 0 以上 5000 未満
+                            5000,
+                            2, // 5000 以上 10000 未満
+                            10000,
+                            5, // 10000 以上 20000 未満
+                            20000,
+                            10, // 20000 以上 40000 未満
+                            40000,
+                            15, // 40000 以上 80000 未満
+                            80000,
+                            20  // 80000 以上
+                        ],
+                        'line-color': 'rgba(0, 127, 255, 1)',
+                        'line-blur': 3,
+                        'line-opacity': 0.6,
+                    },
+                    'filter': ['all',
+                        ['!=', ['get', '２４時間交通量（全車上下計）（台）'], ''],
+                        ['all',
+                            ['!=', ['get', '道路種別'], '1：高速自動車国道'],
+                            ['!=', ['get', '道路種別'], '2：都市高速道路']
+                        ]
+                    ]
+                });
+
+                // ２４時間交通量（全車上下計）（台）ラインレイヤ
+                // 一般道
+                map.addLayer({
+                    'id': '24jikankotsuryo-ippando-line-2',
+                    'type': 'line',
+                    //'source': 'mvt-source',
+                    //'source-layer': 'output',
+                    'source': 'pmtiles',
+                    'source-layer': 'traffic_census_2015_convertfgb',
+                    'layout': {
+                        'line-join': 'round',
+                        'line-cap': 'round'
+                    },
+                    'paint': {
+                        // 'line-width': 4,
+                        'line-width': [
+                            'step',
+                            ['to-number', ['get', '２４時間交通量（全車上下計）（台）']],
+                            0.5, // 0 以上 5000 未満
+                            5000,
+                            1, // 5000 以上 10000 未満
+                            10000,
+                            2.5, // 10000 以上 20000 未満
+                            20000,
+                            5, // 20000 以上 40000 未満
+                            40000,
+                            7.5, // 40000 以上 80000 未満
+                            80000,
+                            10  // 80000 以上
+                        ],
+                        'line-color': 'rgba(0, 127, 255, 1)',
+                        'line-blur': 2,
+                        'line-opacity': 0.6,
+                    },
+                    'filter': ['all',
+                        ['!=', ['get', '２４時間交通量（全車上下計）（台）'], ''],
+                        ['all',
+                            ['!=', ['get', '道路種別'], '1：高速自動車国道'],
+                            ['!=', ['get', '道路種別'], '2：都市高速道路']
+                        ]
+                    ]
+                });
+
+                // ２４時間交通量（全車上下計）（台）ラインレイヤ
+                // 一般道
+                map.addLayer({
+                    'id': '24jikankotsuryo-ippando-line-3',
+                    'type': 'line',
+                    //'source': 'mvt-source',
+                    //'source-layer': 'output',
+                    'source': 'pmtiles',
+                    'source-layer': 'traffic_census_2015_convertfgb',
+                    'layout': {
+                        'line-join': 'round',
+                        'line-cap': 'round'
+                    },
+                    'paint': {
+                        // 'line-width': 4,
+                        'line-width': [
+                            'step',
+                            ['to-number', ['get', '２４時間交通量（全車上下計）（台）']],
+                            0.25, // 0 以上 5000 未満
+                            5000,
+                            0.5, // 5000 以上 10000 未満
+                            10000,
+                            1, // 10000 以上 20000 未満
+                            20000,
+                            1, // 20000 以上 40000 未満
+                            40000,
+                            1, // 40000 以上 80000 未満
+                            80000,
+                            1  // 80000 以上
+                        ],
+                        'line-color': 'rgba(255, 255, 255, 1)',
+                        'line-blur': 0,
+                        'line-opacity': 1,
+                    },
+                    'filter': ['all',
+                        ['!=', ['get', '２４時間交通量（全車上下計）（台）'], ''],
+                        ['all',
+                            ['!=', ['get', '道路種別'], '1：高速自動車国道'],
+                            ['!=', ['get', '道路種別'], '2：都市高速道路']
+                        ]
+                    ]
+                });
+
+                // ２４時間交通量（全車上下計）（台）ラベルレイヤ
+                // 一般道
+                map.addLayer({
+                    'id': '24jikankotsuryo-ippando-label',
+                    'type': 'symbol',
+                    //'source': 'mvt-source',
+                    //'source-layer': 'output',
+                    'source': 'pmtiles',
+                    'source-layer': 'traffic_census_2015_convertfgb',
+                    minzoom: 0,
+                    maxzoom: 23,
+                    layout: {
+                        'symbol-placement': 'line-center', // ラベルを線に沿って配置
+                        'text-rotation-alignment': 'map', // ラベルの回転を線に沿って調整
+                        'text-field': ['concat', ['get', '２４時間交通量（全車上下計）（台）'], '台'],
+                        'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+                        'text-size': 11,
+                        'text-offset': [0, -1]
+                    },
+                    paint: {
+                        'text-color': 'rgba(255, 255, 255, 1)',
+                        'text-halo-blur': 0.8,
+                        'text-halo-color': 'rgba(0, 0, 0, 1)',
+                        'text-halo-width': 1
+                    },
+                    'filter': ['all',
+                        ['!=', ['get', '２４時間交通量（全車上下計）（台）'], ''],
+                        ['any',
+                            ['!=', ['get', '道路種別'], '1：高速自動車国道'],
+                            ['!=', ['get', '道路種別'], '2：都市高速道路']
+                        ]
+                    ]
+                });
+
+                // ２４時間交通量（全車上下計）（台）ラインレイヤ
+                // 高速道路
+                map.addLayer({
+                    'id': '24jikankotsuryo-kousoku-line-1',
+                    'type': 'line',
+                    //'source': 'mvt-source',
+                    //'source-layer': 'output',
+                    'source': 'pmtiles',
+                    'source-layer': 'traffic_census_2015_convertfgb',
+                    'layout': {
+                        'line-join': 'round',
+                        'line-cap': 'round'
+                    },
+                    'paint': {
+                        // 'line-width': 4,
+                        'line-width': [
+                            'step',
+                            ['to-number', ['get', '２４時間交通量（全車上下計）（台）']],
+                            1, // 0 以上 5000 未満
+                            5000,
+                            2, // 5000 以上 10000 未満
+                            10000,
+                            5, // 10000 以上 20000 未満
+                            20000,
+                            10, // 20000 以上 40000 未満
+                            40000,
+                            15, // 40000 以上 80000 未満
+                            80000,
+                            20  // 80000 以上
+                        ],
+                        'line-color': 'rgba(0, 255, 255, 1)',
+                        'line-blur': 3,
+                        'line-opacity': 0.6,
+                    },
+                    'filter': ['all',
+                        ['!=', ['get', '２４時間交通量（全車上下計）（台）'], ''],
+                        ['any',
+                            ['==', ['get', '道路種別'], '1：高速自動車国道'],
+                            ['==', ['get', '道路種別'], '2：都市高速道路']
+                        ]
+                    ]
+                });
+
+                // ２４時間交通量（全車上下計）（台）ラインレイヤ
+                // 高速道路
+                map.addLayer({
+                    'id': '24jikankotsuryo-kousoku-line-2',
+                    'type': 'line',
+                    //'source': 'mvt-source',
+                    //'source-layer': 'output',
+                    'source': 'pmtiles',
+                    'source-layer': 'traffic_census_2015_convertfgb',
+                    'layout': {
+                        'line-join': 'round',
+                        'line-cap': 'round'
+                    },
+                    'paint': {
+                        // 'line-width': 4,
+                        'line-width': [
+                            'step',
+                            ['to-number', ['get', '２４時間交通量（全車上下計）（台）']],
+                            0.5, // 0 以上 5000 未満
+                            5000,
+                            1, // 5000 以上 10000 未満
+                            10000,
+                            2.5, // 10000 以上 20000 未満
+                            20000,
+                            5, // 20000 以上 40000 未満
+                            40000,
+                            7.5, // 40000 以上 80000 未満
+                            80000,
+                            10  // 80000 以上
+                        ],
+                        'line-color': 'rgba(0, 255, 255, 1)',
+                        'line-blur': 2,
+                        'line-opacity': 0.6,
+                    },
+                    'filter': ['all',
+                        ['!=', ['get', '２４時間交通量（全車上下計）（台）'], ''],
+                        ['any',
+                            ['==', ['get', '道路種別'], '1：高速自動車国道'],
+                            ['==', ['get', '道路種別'], '2：都市高速道路']
+                        ]
+                    ]
+                });
+
+                // ２４時間交通量（全車上下計）（台）ラインレイヤ
+                // 高速道路
+                map.addLayer({
+                    'id': '24jikankotsuryo-kousoku-line-3',
+                    'type': 'line',
+                    //'source': 'mvt-source',
+                    //'source-layer': 'output',
+                    'source': 'pmtiles',
+                    'source-layer': 'traffic_census_2015_convertfgb',
+                    'layout': {
+                        'line-join': 'round',
+                        'line-cap': 'round'
+                    },
+                    'paint': {
+                        // 'line-width': 4,
+                        'line-width': [
+                            'step',
+                            ['to-number', ['get', '２４時間交通量（全車上下計）（台）']],
+                            0.25, // 0 以上 5000 未満
+                            5000,
+                            0.5, // 5000 以上 10000 未満
+                            10000,
+                            1, // 10000 以上 20000 未満
+                            20000,
+                            1, // 20000 以上 40000 未満
+                            40000,
+                            1, // 40000 以上 80000 未満
+                            80000,
+                            1  // 80000 以上
+                        ],
+                        'line-color': 'rgba(255, 255, 255, 1)',
+                        'line-blur': 0,
+                        'line-opacity': 1,
+                    },
+                    'filter': ['all',
+                        ['!=', ['get', '２４時間交通量（全車上下計）（台）'], ''],
+                        ['any',
+                            ['==', ['get', '道路種別'], '1：高速自動車国道'],
+                            ['==', ['get', '道路種別'], '2：都市高速道路']
+                        ]
+                    ]
+                });
+
+                // ２４時間交通量（全車上下計）（台）ラベルレイヤ
+                // 高速道路
+                map.addLayer({
+                    'id': '24jikankotsuryo-kousoku-label',
+                    'type': 'symbol',
+                    //'source': 'mvt-source',
+                    //'source-layer': 'output',
+                    'source': 'pmtiles',
+                    'source-layer': 'traffic_census_2015_convertfgb',
+                    minzoom: 0,
+                    maxzoom: 23,
+                    layout: {
+                        'symbol-placement': 'line-center', // ラベルを線に沿って配置
+                        'text-rotation-alignment': 'map', // ラベルの回転を線に沿って調整
+                        'text-field': ['concat', ['get', '２４時間交通量（全車上下計）（台）'], '台'],
+                        'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+                        'text-size': 11,
+                        'text-offset': [0, -1]
+                    },
+                    paint: {
+                        'text-color': 'rgba(255, 255, 255, 1)',
+                        'text-halo-blur': 0.8,
+                        'text-halo-color': 'rgba(0, 0, 0, 1)',
+                        'text-halo-width': 1
+                    },
+                    'filter': ['all',
+                        ['!=', ['get', '２４時間交通量（全車上下計）（台）'], ''],
+                        ['any',
+                            ['==', ['get', '道路種別'], '1：高速自動車国道'],
+                            ['==', ['get', '道路種別'], '2：都市高速道路']
+                        ]
+                    ]
                 });
             }
 
@@ -858,7 +1413,7 @@
                 id: 'syuyouzyutai-point-1',
                 type: 'circle',
                 source: 'syuyouzyutai',
-                minzoom: 12,
+                minzoom: 14,
                 maxzoom: 23,
                 paint: {
                     'circle-color': 'rgba(255, 255, 255, 1)',
@@ -872,7 +1427,7 @@
                 id: 'syuyouzyutai-point-2',
                 type: 'circle',
                 source: 'syuyouzyutai',
-                minzoom: 12,
+                minzoom: 14,
                 maxzoom: 23,
                 paint: {
                     'circle-color': 'rgba(255, 0, 255, 1)',
@@ -885,7 +1440,7 @@
                 id: 'syuyouzyutai-label',
                 type: 'symbol',
                 source: 'syuyouzyutai',
-                minzoom: 12,
+                minzoom: 14,
                 maxzoom: 23,
                 layout: {
                     'text-field': ['get', 'syk'],
@@ -903,7 +1458,7 @@
 
 
             // 凡例の表示切り替え
-            var layerIds = ["konzatsuji", "hikonzatsuji", "konzatsudo", "ogatashakonnyuritsu"];
+            var layerIds = ["24jikankotsuryo", "konzatsuji", "hikonzatsuji", "konzatsudo", "ogatashakonnyuritsu"];
             for (var j = 0; j < layerIds.length; j++) {
                 if (layerIds[j] === BaseMapName) {
                     // 表示
