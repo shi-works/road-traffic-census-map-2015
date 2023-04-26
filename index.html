@@ -298,6 +298,8 @@
         const sliderOpactiy = document.getElementById('slider-opacity');
         const sliderOpactiyValue = document.getElementById('slider-opacity-value');
 
+        var hoveredStateId = null;
+
         map.on('load', () => {
 
             // 全国最新写真（シームレス）
@@ -355,7 +357,8 @@
             map.addSource("pmtiles", {
                 type: "vector",
                 url: "pmtiles://" + PMTILES_URL,
-                attribution: '<a href="https://www.mlit-data.jp/platform/">国土交通データプラットフォーム 全国道路・街路交通情勢調査 一般交通量調査（道路交通センサス）（国土交通省）</a>'
+                attribution: '<a href="https://www.mlit-data.jp/platform/">国土交通データプラットフォーム 全国道路・街路交通情勢調査 一般交通量調査（道路交通センサス）（国土交通省）</a>',
+                generateId: true
             });
 
             // 属性表示用ラインレイヤ
@@ -374,6 +377,36 @@
                     'line-color': 'rgba(255, 255, 255, 0)',
                     'line-width': 7
                 }
+            });
+
+            // ホバー効果
+            const id = 'zokusei-layer';
+            const sourceName = 'pmtiles';
+            const sourceLayerName = 'traffic_census_2015_convertfgb';
+            map.on('mousemove', id, function (e) {
+                if (e.features.length > 0) {
+                    if (hoveredStateId) {
+                        map.setFeatureState(
+                            { source: sourceName, sourceLayer: sourceLayerName, id: hoveredStateId },
+                            { hover: false }
+                        );
+                    }
+                    hoveredStateId = e.features[0].id;
+                    map.setFeatureState(
+                        { source: sourceName, sourceLayer: sourceLayerName, id: hoveredStateId },
+                        { hover: true }
+                    );
+                }
+            });
+
+            map.on('mouseleave', id, function () {
+                if (hoveredStateId) {
+                    map.setFeatureState(
+                        { source: sourceName, sourceLayer: sourceLayerName, id: hoveredStateId },
+                        { hover: false }
+                    );
+                }
+                hoveredStateId = null;
             });
 
             // ２４時間交通量（全車上下計）（台）ラインレイヤ
@@ -527,7 +560,7 @@
                 paint: {
                     'text-color': 'rgba(255, 255, 255, 1)',
                     'text-halo-blur': 0.8,
-                    'text-halo-color': 'rgba(0, 0, 0, 1)',
+                    'text-halo-color': 'rgba(0, 127, 255, 1)',
                     'text-halo-width': 1
                 },
                 'filter': ['all',
@@ -690,7 +723,7 @@
                 paint: {
                     'text-color': 'rgba(255, 255, 255, 1)',
                     'text-halo-blur': 0.8,
-                    'text-halo-color': 'rgba(0, 0, 0, 1)',
+                    'text-halo-color': 'rgba(0, 255, 255, 1)',
                     'text-halo-width': 1
                 },
                 'filter': ['all',
