@@ -56,7 +56,7 @@
             background: rgba(255, 255, 255, 0.9);
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.9);
             border-radius: 5px;
-            width: 340px;
+            width: 380px;
             height: 320px;
             overflow: scroll;
         }
@@ -2012,11 +2012,17 @@
             var kobetsuchosakansokuchikatsuyonobetsu = e.features[0].properties['個別調査観測値活用の別'];
             var jikankansokunobetsu = e.features[0].properties['12・24時間観測の別'];
             var hiruma_12jikankotsuryo_kogatasha = e.features[0].properties['昼間１２時間交通量（小型車上下計）（台）'];
+            var formatted_hiruma_12jikankotsuryo_kogatasha = Number(hiruma_12jikankotsuryo_kogatasha).toLocaleString();
             var hiruma_12jikankotsuryo_ogatasha = e.features[0].properties['昼間１２時間交通量（大型車上下計）（台）'];
+            var formatted_hiruma_12jikankotsuryo_ogatasha = Number(hiruma_12jikankotsuryo_ogatasha).toLocaleString();
             var hiruma_12jikankotsuryo_zensha = e.features[0].properties['昼間１２時間交通量（全車上下計）（台）'];
+            var formatted_hiruma_12jikankotsuryo_zensha = Number(hiruma_12jikankotsuryo_zensha).toLocaleString();
             var jikankotsuryo_kogatasha = e.features[0].properties['２４時間交通量（小型車上下計）（台）'];
+            var formatted_jikankotsuryo_kogatasha = Number(jikankotsuryo_kogatasha).toLocaleString();
             var jikankotsuryo_ogatasha = e.features[0].properties['２４時間交通量（大型車上下計）（台）'];
+            var formatted_jikankotsuryo_ogatasha = Number(jikankotsuryo_ogatasha).toLocaleString();
             var jikankotsuryo_zensha = e.features[0].properties['２４時間交通量（全車上下計）（台）'];
+            var formatted_jikankotsuryo_zensha = Number(jikankotsuryo_zensha).toLocaleString();
             var hiruma_12jikan_ogatashakonnyuritsu = e.features[0].properties['昼間12時間大型車混入率（％）'];
             var konzatsudo = e.features[0].properties['混雑度'];
             var ryokosokudochosatanikukambango = e.features[0].properties['旅行速度調査単位区間番号'];
@@ -2101,22 +2107,22 @@
                     '<td>' + '12・24時間観測の別' + '</td> ' + '<td>' + jikankansokunobetsu + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '昼間１２時間交通量' + '<br> ' + '(小型車上下計)' + '</td> ' + '<td>' + hiruma_12jikankotsuryo_kogatasha + '台' + '</td> ' +
+                    '<td>' + '昼間１２時間交通量' + '<br> ' + '(小型車上下計)' + '</td> ' + '<td>' + formatted_hiruma_12jikankotsuryo_kogatasha + '台' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '昼間１２時間交通量' + '<br> ' + '(大型車上下計)' + '</td> ' + '<td>' + hiruma_12jikankotsuryo_ogatasha + '台' + '</td> ' +
+                    '<td>' + '昼間１２時間交通量' + '<br> ' + '(大型車上下計)' + '</td> ' + '<td>' + formatted_hiruma_12jikankotsuryo_ogatasha + '台' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '昼間１２時間交通量' + '<br>' + '(全車上下計)' + '</td> ' + '<td>' + hiruma_12jikankotsuryo_zensha + '台' + '</td> ' +
+                    '<td>' + '昼間１２時間交通量' + '<br>' + '(全車上下計)' + '</td> ' + '<td>' + formatted_hiruma_12jikankotsuryo_zensha + '台' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '２４時間交通量' + '<br>' + '(小型車上下計)' + '</td> ' + '<td>' + jikankotsuryo_kogatasha + '台' + '</td> ' +
+                    '<td>' + '２４時間交通量' + '<br>' + '(小型車上下計)' + '</td> ' + '<td>' + formatted_jikankotsuryo_kogatasha + '台' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '２４時間交通量' + '<br>' + '(大型車上下計)' + '</td> ' + '<td>' + jikankotsuryo_ogatasha + '台' + '</td> ' +
+                    '<td>' + '２４時間交通量' + '<br>' + '(大型車上下計)' + '</td> ' + '<td>' + formatted_jikankotsuryo_ogatasha + '台' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '２４時間交通量' + '<br>' + '(全車上下計)' + '</td> ' + '<td>' + jikankotsuryo_zensha + '台' + '</td> ' +
+                    '<td>' + '２４時間交通量' + '<br>' + '(全車上下計)' + '</td> ' + '<td>' + formatted_jikankotsuryo_zensha + '台' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
                     '<td>' + '昼間12時間大型車混入率' + '</td> ' + '<td>' + hiruma_12jikan_ogatashakonnyuritsu + '％' + '</td> ' +
@@ -2165,11 +2171,17 @@
             var kobetsuchosakansokuchikatsuyonobetsu = e.features[0].properties['個別調査観測値活用の別'];
             var jikankansokunobetsu = e.features[0].properties['12・24時間観測の別'];
             var hiruma_12jikankotsuryo_kogatasha = e.features[0].properties['昼間１２時間交通量（小型車上下計）（台）'];
+            var formatted_hiruma_12jikankotsuryo_kogatasha = Number(hiruma_12jikankotsuryo_kogatasha).toLocaleString();
             var hiruma_12jikankotsuryo_ogatasha = e.features[0].properties['昼間１２時間交通量（大型車上下計）（台）'];
+            var formatted_hiruma_12jikankotsuryo_ogatasha = Number(hiruma_12jikankotsuryo_ogatasha).toLocaleString();
             var hiruma_12jikankotsuryo_zensha = e.features[0].properties['昼間１２時間交通量（全車上下計）（台）'];
+            var formatted_hiruma_12jikankotsuryo_zensha = Number(hiruma_12jikankotsuryo_zensha).toLocaleString();
             var jikankotsuryo_kogatasha = e.features[0].properties['２４時間交通量（小型車上下計）（台）'];
+            var formatted_jikankotsuryo_kogatasha = Number(jikankotsuryo_kogatasha).toLocaleString();
             var jikankotsuryo_ogatasha = e.features[0].properties['２４時間交通量（大型車上下計）（台）'];
+            var formatted_jikankotsuryo_ogatasha = Number(jikankotsuryo_ogatasha).toLocaleString();
             var jikankotsuryo_zensha = e.features[0].properties['２４時間交通量（全車上下計）（台）'];
+            var formatted_jikankotsuryo_zensha = Number(jikankotsuryo_zensha).toLocaleString();
             var hiruma_12jikan_ogatashakonnyuritsu = e.features[0].properties['昼間12時間大型車混入率（％）'];
             var konzatsudo = e.features[0].properties['混雑度'];
             var ryokosokudochosatanikukambango = e.features[0].properties['旅行速度調査単位区間番号'];
@@ -2254,22 +2266,22 @@
                     '<td>' + '12・24時間観測の別' + '</td> ' + '<td>' + jikankansokunobetsu + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '昼間１２時間交通量' + '<br> ' + '(小型車上下計)' + '</td> ' + '<td>' + hiruma_12jikankotsuryo_kogatasha + '台' + '</td> ' +
+                    '<td>' + '昼間１２時間交通量' + '<br> ' + '(小型車上下計)' + '</td> ' + '<td>' + formatted_hiruma_12jikankotsuryo_kogatasha + '台' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '昼間１２時間交通量' + '<br> ' + '(大型車上下計)' + '</td> ' + '<td>' + hiruma_12jikankotsuryo_ogatasha + '台' + '</td> ' +
+                    '<td>' + '昼間１２時間交通量' + '<br> ' + '(大型車上下計)' + '</td> ' + '<td>' + formatted_hiruma_12jikankotsuryo_ogatasha + '台' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '昼間１２時間交通量' + '<br>' + '(全車上下計)' + '</td> ' + '<td>' + hiruma_12jikankotsuryo_zensha + '台' + '</td> ' +
+                    '<td>' + '昼間１２時間交通量' + '<br>' + '(全車上下計)' + '</td> ' + '<td>' + formatted_hiruma_12jikankotsuryo_zensha + '台' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '２４時間交通量' + '<br>' + '(小型車上下計)' + '</td> ' + '<td>' + jikankotsuryo_kogatasha + '台' + '</td> ' +
+                    '<td>' + '２４時間交通量' + '<br>' + '(小型車上下計)' + '</td> ' + '<td>' + formatted_jikankotsuryo_kogatasha + '台' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '２４時間交通量' + '<br>' + '(大型車上下計)' + '</td> ' + '<td>' + jikankotsuryo_ogatasha + '台' + '</td> ' +
+                    '<td>' + '２４時間交通量' + '<br>' + '(大型車上下計)' + '</td> ' + '<td>' + formatted_jikankotsuryo_ogatasha + '台' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '２４時間交通量' + '<br>' + '(全車上下計)' + '</td> ' + '<td>' + jikankotsuryo_zensha + '台' + '</td> ' +
+                    '<td>' + '２４時間交通量' + '<br>' + '(全車上下計)' + '</td> ' + '<td>' + formatted_jikankotsuryo_zensha + '台' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
                     '<td>' + '昼間12時間大型車混入率' + '</td> ' + '<td>' + hiruma_12jikan_ogatashakonnyuritsu + '％' + '</td> ' +
