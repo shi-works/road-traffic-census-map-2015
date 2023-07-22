@@ -56,7 +56,7 @@
             background: rgba(255, 255, 255, 0.9);
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.9);
             border-radius: 5px;
-            width: 380px;
+            width: 350px;
             height: 320px;
             overflow: scroll;
         }
@@ -141,7 +141,7 @@
     <div id="zokusei">
         <label><b>表示する属性の種類</b></label><br>
         <select id="basemaps" onchange="SelectMap()">
-            <option value="24jikankotsuryo">２４時間交通量（全車上下計）（台）</option>
+            <option value="24jikankotsuryo">２４時間自動車類交通量（上下計）</option>
             <option value="konzatsudo">混雑度</option>
             <option value="ogatashakonnyuritsu">大型車混入率</option>
             <option value="konzatsuji">混雑時旅行速度</option>
@@ -165,9 +165,9 @@
         <div class="square" style='background-color: rgb(255, 0, 255); display: inline-block;'>
         </div><span style="display: inline-block; margin-left: 5px;">一般国道 補助国</span><br>
         <div class="square" style='background-color: rgb(0, 116, 0); display: inline-block;'>
-        </div><span style="display: inline-block; margin-left: 5px;">主要地方道（都道府県道・指定市市道）</span><br>
+        </div><span style="display: inline-block; margin-left: 5px;">主要地方道<br>(都道府県道・指定市市道)</span><br>
         <div class="square" style='background-color: rgb(116, 0, 0); display: inline-block;'>
-        </div><span style="display: inline-block; margin-left: 5px;">一般都道府県道・指定市の一般市道</span><br>
+        </div><span style="display: inline-block; margin-left: 5px;">一般都道府県道<br>・指定市の一般市道</span><br>
         <p>※図中の台数は
             24時間交通量<br>(全車上下計)</p>
         <div>
@@ -2107,22 +2107,22 @@
                     '<td>' + '12・24時間観測の別' + '</td> ' + '<td>' + jikankansokunobetsu + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '昼間１２時間交通量' + '<br> ' + '(小型車上下計)' + '</td> ' + '<td>' + formatted_hiruma_12jikankotsuryo_kogatasha + '台' + '</td> ' +
+                    '<td>' + '上下計／昼間１２時間交通量(小型車)' + '</td> ' + '<td>' + formatted_hiruma_12jikankotsuryo_kogatasha + '台' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '昼間１２時間交通量' + '<br> ' + '(大型車上下計)' + '</td> ' + '<td>' + formatted_hiruma_12jikankotsuryo_ogatasha + '台' + '</td> ' +
+                    '<td>' + '上下計／昼間１２時間交通量(大型車)' + '</td> ' + '<td>' + formatted_hiruma_12jikankotsuryo_ogatasha + '台' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '昼間１２時間交通量' + '<br>' + '(全車上下計)' + '</td> ' + '<td>' + formatted_hiruma_12jikankotsuryo_zensha + '台' + '</td> ' +
+                    '<td>' + '上下計／昼間１２時間交通量(全車)' + '</td> ' + '<td>' + formatted_hiruma_12jikankotsuryo_zensha + '台' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '２４時間交通量' + '<br>' + '(小型車上下計)' + '</td> ' + '<td>' + formatted_jikankotsuryo_kogatasha + '台' + '</td> ' +
+                    '<td>' + '上下計／２４時間交通量(小型車)' + '</td> ' + '<td>' + formatted_jikankotsuryo_kogatasha + '台' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '２４時間交通量' + '<br>' + '(大型車上下計)' + '</td> ' + '<td>' + formatted_jikankotsuryo_ogatasha + '台' + '</td> ' +
+                    '<td>' + '上下計／２４時間交通量(大型車)' + '</td> ' + '<td>' + formatted_jikankotsuryo_ogatasha + '台' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '２４時間交通量' + '<br>' + '(全車上下計)' + '</td> ' + '<td>' + formatted_jikankotsuryo_zensha + '台' + '</td> ' +
+                    '<td>' + '上下計／２４時間交通量(全車)' + '</td> ' + '<td>' + formatted_jikankotsuryo_zensha + '台' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
                     '<td>' + '昼間12時間大型車混入率' + '</td> ' + '<td>' + hiruma_12jikan_ogatashakonnyuritsu + '％' + '</td> ' +
@@ -2134,16 +2134,16 @@
                     '<td>' + '旅行速度調査単位区間番号' + '</td> ' + '<td>' + ryokosokudochosatanikukambango + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '混雑時旅行速度(上り)' + '</td> ' + '<td>' + konzatsujiryokosokudo_up + 'km/h' + '</td> ' +
+                    '<td>' + '上り／混雑時旅行速度' + '</td> ' + '<td>' + konzatsujiryokosokudo_up + 'km/h' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '混雑時旅行速度(下り)' + '</td> ' + '<td>' + konzatsujiryokosokudo_down + 'km/h' + '</td> ' +
+                    '<td>' + '下り／混雑時旅行速度' + '</td> ' + '<td>' + konzatsujiryokosokudo_down + 'km/h' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '昼間非混雑時旅行速度(上り)' + '</td> ' + '<td>' + hirumahikonzatsujiryokosokudo_up + 'km/h' + '</td> ' +
+                    '<td>' + '上り／昼間非混雑時旅行速度' + '</td> ' + '<td>' + hirumahikonzatsujiryokosokudo_up + 'km/h' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '昼間非混雑時旅行速度(下り)' + '</td> ' + '<td>' + hirumahikonzatsujiryokosokudo_down + 'km/h' + '</td> ' +
+                    '<td>' + '下り／昼間非混雑時旅行速度' + '</td> ' + '<td>' + hirumahikonzatsujiryokosokudo_down + 'km/h' + '</td> ' +
                     '</tr>' +
                     '<table>'
                     + '座標: ' + lat.toFixed(7) + "," + lng.toFixed(7) + ' ※クリック位置の座標<br>'
@@ -2266,22 +2266,22 @@
                     '<td>' + '12・24時間観測の別' + '</td> ' + '<td>' + jikankansokunobetsu + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '昼間１２時間交通量' + '<br> ' + '(小型車上下計)' + '</td> ' + '<td>' + formatted_hiruma_12jikankotsuryo_kogatasha + '台' + '</td> ' +
+                    '<td>' + '上下計／昼間１２時間交通量(小型車)' + '</td> ' + '<td>' + formatted_hiruma_12jikankotsuryo_kogatasha + '台' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '昼間１２時間交通量' + '<br> ' + '(大型車上下計)' + '</td> ' + '<td>' + formatted_hiruma_12jikankotsuryo_ogatasha + '台' + '</td> ' +
+                    '<td>' + '上下計／昼間１２時間交通量(大型車)' + '</td> ' + '<td>' + formatted_hiruma_12jikankotsuryo_ogatasha + '台' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '昼間１２時間交通量' + '<br>' + '(全車上下計)' + '</td> ' + '<td>' + formatted_hiruma_12jikankotsuryo_zensha + '台' + '</td> ' +
+                    '<td>' + '上下計／昼間１２時間交通量(全車)' + '</td> ' + '<td>' + formatted_hiruma_12jikankotsuryo_zensha + '台' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '２４時間交通量' + '<br>' + '(小型車上下計)' + '</td> ' + '<td>' + formatted_jikankotsuryo_kogatasha + '台' + '</td> ' +
+                    '<td>' + '上下計／２４時間交通量(小型車)' + '</td> ' + '<td>' + formatted_jikankotsuryo_kogatasha + '台' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '２４時間交通量' + '<br>' + '(大型車上下計)' + '</td> ' + '<td>' + formatted_jikankotsuryo_ogatasha + '台' + '</td> ' +
+                    '<td>' + '上下計／２４時間交通量(大型車)' + '</td> ' + '<td>' + formatted_jikankotsuryo_ogatasha + '台' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '２４時間交通量' + '<br>' + '(全車上下計)' + '</td> ' + '<td>' + formatted_jikankotsuryo_zensha + '台' + '</td> ' +
+                    '<td>' + '上下計／２４時間交通量(全車)' + '</td> ' + '<td>' + formatted_jikankotsuryo_zensha + '台' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
                     '<td>' + '昼間12時間大型車混入率' + '</td> ' + '<td>' + hiruma_12jikan_ogatashakonnyuritsu + '％' + '</td> ' +
@@ -2293,16 +2293,16 @@
                     '<td>' + '旅行速度調査単位区間番号' + '</td> ' + '<td>' + ryokosokudochosatanikukambango + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '混雑時旅行速度(上り)' + '</td> ' + '<td>' + konzatsujiryokosokudo_up + 'km/h' + '</td> ' +
+                    '<td>' + '上り／混雑時旅行速度' + '</td> ' + '<td>' + konzatsujiryokosokudo_up + 'km/h' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '混雑時旅行速度(下り)' + '</td> ' + '<td>' + konzatsujiryokosokudo_down + 'km/h' + '</td> ' +
+                    '<td>' + '下り／混雑時旅行速度' + '</td> ' + '<td>' + konzatsujiryokosokudo_down + 'km/h' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '昼間非混雑時旅行速度(上り)' + '</td> ' + '<td>' + hirumahikonzatsujiryokosokudo_up + 'km/h' + '</td> ' +
+                    '<td>' + '上り／昼間非混雑時旅行速度' + '</td> ' + '<td>' + hirumahikonzatsujiryokosokudo_up + 'km/h' + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '昼間非混雑時旅行速度(下り)' + '</td> ' + '<td>' + hirumahikonzatsujiryokosokudo_down + 'km/h' + '</td> ' +
+                    '<td>' + '下り／昼間非混雑時旅行速度' + '</td> ' + '<td>' + hirumahikonzatsujiryokosokudo_down + 'km/h' + '</td> ' +
                     '</tr>' +
                     '<table>'
                     + '座標: ' + lat.toFixed(7) + "," + lng.toFixed(7) + ' ※クリック位置の座標<br>'
