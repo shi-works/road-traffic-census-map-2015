@@ -6,7 +6,7 @@ https://shi-works.github.io/road-traffic-census-map-2015/
 ### 国土交通データプラットフォームver2.1の公開 令和4年3月30日公開
 - 全国道路・街路交通情勢調査一般交通量調査（道路交通センサス）
 - 下記のURLからズームレベル11のバイナリベクトルタイル（pbf）を取得  
-https://data.mlit-data.jp/traffic_census/11/1818/806.pbf
+https://data.mlit-data.jp/traffic_census/{z}/{x}/{y}.pbf
 
 ## GIS Data
 ### PMTiles形式
