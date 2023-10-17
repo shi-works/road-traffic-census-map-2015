@@ -15,3 +15,6 @@ https://data.mlit-data.jp/traffic_census/{z}/{x}/{y}.pbf
 `https://xs489works.xsrv.jp/pmtiles-data/traffic-census/traffic_census_2015_convert.pmtiles`,205MB
 ### GeoParquet形式
 `https://xs489works.xsrv.jp/pmtiles-data/traffic-census/traffic_census_2015_convert.parquet`,32MB
+
+## 道路交通センサスマップ2021
+https://github.com/shi-works/road-traffic-census-map-2021
